@@ -1,0 +1,342 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "CinzelVar"; src: url("fonts/Cinzel[wght].ttf"); font-weight: 400 900; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg id="s" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bgGrad" cx="512" cy="520" r="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="var(--bg0)"/>
+      <stop offset="0.4" stop-color="#07080b"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+
+    <radialGradient id="edgeFade" cx="512" cy="512" r="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="0.80" stop-color="#fff"/>
+      <stop offset="0.99" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="edgeMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="url(#edgeFade)"/>
+    </mask>
+
+    <radialGradient id="smokeRing" cx="512" cy="512" r="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.05"/>
+      <stop offset="0.3" stop-color="#fff" stop-opacity="0.2"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0.85"/>
+      <stop offset="0.85" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="0.98" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="smokeMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="url(#smokeRing)"/>
+    </mask>
+
+    <filter id="smoke" x="0" y="0" width="1024" height="1024" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0028 0.0042" numOctaves="2" seed="21" result="warp"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.0055 0.0085" numOctaves="4" seed="9" result="noise"/>
+      <feDisplacementMap in="noise" in2="warp" scale="260" xChannelSelector="R" yChannelSelector="G" result="swirl"/>
+      <feColorMatrix in="swirl" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 0" result="lum"/>
+      <feComponentTransfer in="lum" result="veins">
+        <feFuncA type="table" tableValues="0 0 0 0 0 0 0.1 0.55 1 0.55 0.1 0 0 0 0 0 0"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="veins" stdDeviation="0.9" result="veinsSoft"/>
+      <feComponentTransfer in="lum" result="veins2">
+        <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0 0 0 0.6 1 0.6 0 0 0 0"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="veins2" stdDeviation="2.5" result="veins2Soft"/>
+      <feColorMatrix in="swirl" type="matrix" values="0 0 0 0 0.8  0 0 0 0 0.85  0 0 0 0 0.92  1.5 0 0 0 -0.88" result="haze"/>
+      <feGaussianBlur in="haze" stdDeviation="9" result="hazeSoft"/>
+      <feMerge><feMergeNode in="hazeSoft"/><feMergeNode in="veins2Soft"/><feMergeNode in="veinsSoft"/></feMerge>
+    </filter>
+
+    <radialGradient id="burst" cx="512" cy="520" r="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.95"/>
+      <stop offset="0.08" stop-color="var(--glow)" stop-opacity="0.75"/>
+      <stop offset="0.3" stop-color="var(--glow)" stop-opacity="0.22"/>
+      <stop offset="0.65" stop-color="var(--glow)" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="flareH" x1="0" y1="0" x2="1024" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="var(--glow)" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="var(--glow)" stop-opacity="0.35"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.8" stop-color="var(--glow)" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="var(--glow)" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="rayFade" cx="512" cy="520" r="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.2"/>
+      <stop offset="0.15" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="0.95" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="rayMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="url(#rayFade)"/>
+    </mask>
+
+    <linearGradient id="beamV" x1="0" y1="70" x2="0" y2="954" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.14" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="0.86" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="orbitGrad" x1="-470" y1="0" x2="470" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.25"/>
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.8"/>
+      <stop offset="0.8" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="trailGrad" x1="-470" y1="0" x2="470" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="var(--glow)" stop-opacity="0"/>
+      <stop offset="0.55" stop-color="var(--glow)" stop-opacity="0"/>
+      <stop offset="0.85" stop-color="var(--glow)" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f6b7a"/>
+      <stop offset="0.12" stop-color="#aab6c4"/>
+      <stop offset="0.36" stop-color="#f4f8ff"/>
+      <stop offset="0.49" stop-color="#ffffff"/>
+      <stop offset="0.505" stop-color="#15181d"/>
+      <stop offset="0.58" stop-color="#3a414b"/>
+      <stop offset="0.76" stop-color="#9aa4b1"/>
+      <stop offset="0.92" stop-color="#eef3f9"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="extrude" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#40464f"/>
+      <stop offset="1" stop-color="#0b0c0f"/>
+    </linearGradient>
+    <linearGradient id="edgeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0.25">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.66" stop-color="#fff" stop-opacity="0.7"/>
+      <stop offset="0.7" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.76" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="0.79" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="blur2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="blur6" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="blur14" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="blur30" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="30"/></filter>
+    <filter id="glowS" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="bevel" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur"/>
+      <feSpecularLighting in="blur" surfaceScale="5" specularConstant="1.3" specularExponent="35" lighting-color="#ffffff" result="spec">
+        <feDistantLight azimuth="240" elevation="40"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+      <feComposite in="SourceGraphic" in2="specIn" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="0"/>
+    </filter>
+
+    <radialGradient id="starGlow">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.12" stop-color="#fff" stop-opacity="0.8"/>
+      <stop offset="0.4" stop-color="var(--glow)" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="var(--glow)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rayH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rayV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <clipPath id="frontHalf"><rect x="-700" y="0" width="1400" height="400"/></clipPath>
+    <clipPath id="backHalf"><rect x="-700" y="-400" width="1400" height="400"/></clipPath>
+  </defs>
+
+  <g id="all" mask="url(#edgeMask)">
+    <g id="background">
+      <rect width="1024" height="1024" fill="url(#bgGrad)"/>
+      <g mask="url(#smokeMask)"><rect width="1024" height="1024" fill="var(--smoke)" filter="url(#smoke)" opacity="0.6"/></g>
+    </g>
+
+    <g id="rays" mask="url(#rayMask)" filter="url(#blur2)"></g>
+    <circle cx="512" cy="520" r="340" fill="url(#burst)"/>
+
+    <g id="beam">
+      <rect x="500" y="70" width="24" height="884" fill="url(#beamV)" filter="url(#blur14)" opacity="0.55"/>
+      <rect x="509.5" y="70" width="5" height="884" fill="url(#beamV)" filter="url(#blur2)"/>
+      <rect x="511" y="70" width="2" height="884" fill="url(#beamV)"/>
+    </g>
+
+    <g id="orbits"></g>
+    <g id="word"></g>
+    <g id="orbitsFront"></g>
+
+    <g id="flare">
+      <rect x="0" y="508" width="1024" height="24" fill="url(#flareH)" filter="url(#blur14)" opacity="0.55"/>
+      <rect x="40" y="518" width="944" height="4" fill="url(#flareH)" filter="url(#blur2)" opacity="0.9"/>
+      <rect x="120" y="519.4" width="784" height="1.2" fill="url(#flareH)"/>
+    </g>
+
+    <g id="particles"></g>
+    <g id="stars"></g>
+  </g>
+</svg>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const params = new URLSearchParams(location.search);
+const transparent = params.get("bg") === "0";
+const palette = {
+  silver: { glow: "#e4ebf5", smoke: "#c9d0d9", bg0: "#161a20" },
+  ice:    { glow: "#5fb8ff", smoke: "#a9cdf0", bg0: "#08182a" },
+};
+const pal = palette[params.get("pal") || "silver"];
+const root = document.documentElement.style;
+root.setProperty("--glow", pal.glow);
+root.setProperty("--smoke", pal.smoke);
+root.setProperty("--bg0", pal.bg0);
+// SVG presentation attributes don't resolve var(); copy into style
+document.querySelectorAll("[stop-color], [fill]").forEach(e => {
+  for (const a of ["stop-color", "fill"]) {
+    const v = e.getAttribute(a);
+    if (v && v.startsWith("var(")) e.style.setProperty(a, v);
+  }
+});
+if (transparent) document.getElementById("background").remove();
+else el("rect", { width: 1024, height: 1024, fill: "#000" }, document.getElementById("s")).parentNode.insertBefore(document.getElementById("s").lastChild, document.getElementById("all"));
+
+let seed = 1337;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+
+function star(parent, cx, cy, len, thick, glowR, rayLen, opacity = 1, vRay = 0) {
+  const g = el("g", { opacity }, parent);
+  if (glowR) el("circle", { cx, cy, r: glowR, fill: "url(#starGlow)" }, g);
+  if (rayLen) {
+    el("rect", { x: cx - rayLen, y: cy - 4, width: rayLen * 2, height: 8, fill: "url(#rayH)", filter: "url(#blur6)", opacity: 0.6 }, g);
+    el("rect", { x: cx - rayLen, y: cy - 0.9, width: rayLen * 2, height: 1.8, fill: "url(#rayH)" }, g);
+  }
+  if (vRay) el("rect", { x: cx - 0.9, y: cy - vRay, width: 1.8, height: vRay * 2, fill: "url(#rayV)" }, g);
+  const w = thick;
+  const d = `M ${cx} ${cy - len}
+    Q ${cx + w} ${cy - w} ${cx + len * 0.6} ${cy}
+    Q ${cx + w} ${cy + w} ${cx} ${cy + len}
+    Q ${cx - w} ${cy + w} ${cx - len * 0.6} ${cy}
+    Q ${cx - w} ${cy - w} ${cx} ${cy - len} Z`;
+  el("path", { d, fill: "#fff", filter: "url(#glowS)" }, g);
+  return g;
+}
+
+// god rays
+const rays = document.getElementById("rays");
+for (let i = 0; i < 70; i++) {
+  const a = rnd() * Math.PI * 2, spread = 0.004 + rnd() * 0.022, L = 380 + rnd() * 260;
+  const cx = 512, cy = 520;
+  const p = (ang) => `${cx + Math.cos(ang) * L},${cy + Math.sin(ang) * L}`;
+  el("polygon", { points: `${cx},${cy} ${p(a - spread)} ${p(a + spread)}`, fill: "#fff", opacity: (0.04 + rnd() * 0.16).toFixed(3) }, rays);
+}
+
+// orbits
+function ring(parentBack, parentFront, { rx, ry, rot, cy = 528, w = 3, glowW = 12, op = 1, trail = false }) {
+  for (const [parent, clip] of [[parentBack, "backHalf"], [parentFront, "frontHalf"]]) {
+    const g = el("g", { transform: `translate(512 ${cy}) rotate(${rot})`, opacity: op }, parent);
+    const c = el("g", { "clip-path": `url(#${clip})` }, g);
+    el("ellipse", { rx, ry, fill: "none", stroke: "url(#orbitGrad)", "stroke-width": glowW, filter: "url(#blur6)", opacity: 0.5 }, c);
+    el("ellipse", { rx, ry, fill: "none", stroke: "url(#orbitGrad)", "stroke-width": w }, c);
+    if (trail) {
+      el("ellipse", { rx, ry, fill: "none", stroke: "url(#trailGrad)", "stroke-width": 16, filter: "url(#blur6)" }, c);
+      el("ellipse", { rx, ry, fill: "none", stroke: "url(#trailGrad)", "stroke-width": 6 }, c);
+    }
+  }
+}
+const ob = document.getElementById("orbits"), of = document.getElementById("orbitsFront");
+ring(ob, of, { rx: 478, ry: 64, rot: 7, cy: 520, w: 1.3, glowW: 5, op: 0.55 });
+ring(ob, of, { rx: 448, ry: 112, rot: -11, w: 3.4, glowW: 14, trail: true });
+
+// particles
+const parts = document.getElementById("particles");
+for (let i = 0; i < 260; i++) {
+  const ang = rnd() * Math.PI * 2, r = Math.pow(rnd(), 0.7) * 470;
+  const x = 512 + Math.cos(ang) * r * 1.05, y = 520 + Math.sin(ang) * r * 0.95;
+  const s = rnd() < 0.85 ? 0.6 + rnd() * 1.1 : 1.6 + rnd() * 1.6;
+  el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: s.toFixed(2), fill: "#fff", opacity: (0.25 + rnd() * 0.75).toFixed(2), filter: s > 1.6 ? "url(#glowS)" : "" }, parts);
+}
+
+document.fonts.load(`900 100px CinzelVar`).then(() => document.fonts.ready).then(() => {
+  const word = document.getElementById("word");
+  const targetWidth = +(params.get("tw") || 800);
+  const baselineY = 578;
+  const mk = (attrs) => {
+    const t = el("text", Object.assign({ x: 512, y: baselineY, "text-anchor": "middle", "font-family": "CinzelVar", "font-weight": 900, "letter-spacing": 2 }, attrs), word);
+    t.textContent = "ODISEA";
+    return t;
+  };
+  const probe = mk({ "font-size": 100, fill: "none" });
+  const size = 100 * targetWidth / probe.getBBox().width;
+  probe.remove();
+  const fs = size.toFixed(1);
+
+  mk({ "font-size": fs, fill: "#000", opacity: 0.9, filter: "url(#blur14)", transform: "translate(0 22)" });
+  mk({ "font-size": fs, fill: "var(--glow)", opacity: 0.35, filter: "url(#blur30)" }).style.fill = "var(--glow)";
+  const depth = 16;
+  for (let i = depth; i >= 1; i--) {
+    const shade = Math.round(70 - i * 3.6);
+    mk({ "font-size": fs, fill: `rgb(${shade},${shade + 3},${shade + 8})`, transform: `translate(${(i * 0.25).toFixed(2)} ${i})` });
+  }
+  mk({ "font-size": fs, fill: "none", stroke: "#000", "stroke-width": 7, "stroke-linejoin": "round" });
+  const face = mk({ "font-size": fs, fill: "url(#chrome)", filter: "url(#bevel)" });
+  mk({ "font-size": fs, fill: "url(#sheen)" });
+  mk({ "font-size": fs, fill: "none", stroke: "url(#edgeGrad)", "stroke-width": 1.6, opacity: 0.85 });
+
+  const stars = document.getElementById("stars");
+  const bb = face.getBBox();
+  star(stars, 512, 168, 86, 9, 110, 190, 1, 0);
+  star(stars, 512, 878, 70, 8, 90, 150, 1, 0);
+
+  const o = face.getExtentOfChar(0);
+  star(stars, o.x + o.width / 2, o.y + o.height * 0.555, size * 0.3, size * 0.04, size * 0.42, size * 0.9);
+
+  const a = face.getExtentOfChar(5);
+  star(stars, a.x + a.width * 0.5, bb.y + bb.height * 0.05, 34, 3.5, 54, 110, 1, 40);
+  const d = face.getExtentOfChar(1), e = face.getExtentOfChar(4), s = face.getExtentOfChar(3);
+  star(stars, d.x + d.width * 0.12, bb.y + bb.height * 0.2, 14, 1.6, 22, 40, 0.9);
+  star(stars, e.x + e.width * 0.86, bb.y + bb.height * 0.2, 16, 1.8, 24, 46, 0.9);
+  star(stars, s.x + s.width * 0.3, bb.y + bb.height * 0.85, 12, 1.4, 18, 30, 0.8);
+
+  // comet head on main orbit (front right)
+  const ang = -11 * Math.PI / 180, t = 0.32;
+  const ex = 448 * Math.cos(t), ey = 112 * Math.sin(t);
+  star(stars, 512 + ex * Math.cos(ang) - ey * Math.sin(ang), 528 + ex * Math.sin(ang) + ey * Math.cos(ang), 30, 3.2, 60, 90);
+
+  const tiny = [[290, 300, 10], [760, 286, 9], [214, 690, 8], [812, 740, 10], [660, 200, 6], [372, 820, 7], [150, 470, 6], [884, 560, 7]];
+  tiny.forEach(([x, y, l]) => star(stars, x, y, l, 1.3, l * 2, l * 2.2, 0.85));
+
+  document.body.dataset.ready = "1";
+});
+</script>
+</body>
+</html>
