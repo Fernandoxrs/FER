@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "CinzelDeco"; src: url("fonts/CinzelDecorative-Black.ttf"); }
+  @font-face { font-family: "CinzelVar"; src: url("fonts/Cinzel[wght].ttf"); font-weight: 400 900; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg id="s" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bgGrad" cx="512" cy="512" r="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1a1d22"/>
+      <stop offset="0.45" stop-color="#0b0c0f"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+
+    <radialGradient id="ringMaskGrad" cx="512" cy="512" r="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.30" stop-color="#fff" stop-opacity="0.05"/>
+      <stop offset="0.55" stop-color="#fff" stop-opacity="0.85"/>
+      <stop offset="0.72" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="0.86" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="0.98" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="ringMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="url(#ringMaskGrad)"/>
+    </mask>
+    <linearGradient id="sidesGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.3" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.12"/>
+      <stop offset="0.7" stop-color="#fff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="sidesMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="url(#sidesGrad)"/>
+    </mask>
+
+    <filter id="smoke" x="0" y="0" width="1024" height="1024" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.0065" numOctaves="2" seed="11" result="warp"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="4" seed="4" result="noise"/>
+      <feDisplacementMap in="noise" in2="warp" scale="180" xChannelSelector="R" yChannelSelector="G" result="swirl"/>
+      <feColorMatrix in="swirl" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1 0 0 0 0" result="lum"/>
+      <feComponentTransfer in="lum" result="veins">
+        <feFuncA type="table" tableValues="0 0 0 0 0 0 0 0.15 1 0.15 0 0 0 0 0 0 0"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="veins" stdDeviation="1.1" result="veinsSoft"/>
+      <feColorMatrix in="swirl" type="matrix" values="0 0 0 0 0.7  0 0 0 0 0.74  0 0 0 0 0.8  1.6 0 0 0 -0.82" result="haze"/>
+      <feGaussianBlur in="haze" stdDeviation="6" result="hazeSoft"/>
+      <feMerge><feMergeNode in="hazeSoft"/><feMergeNode in="veinsSoft"/></feMerge>
+    </filter>
+
+    <radialGradient id="coreGlow" cx="512" cy="512" r="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c9d3e0" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#8d99a8" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="beamV" x1="0" y1="110" x2="0" y2="914" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.16" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="0.36" stop-color="#fff" stop-opacity="0.5"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.66" stop-color="#fff" stop-opacity="0.5"/>
+      <stop offset="0.84" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="orbitGrad" x1="-420" y1="0" x2="420" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.15"/>
+      <stop offset="0.25" stop-color="#fff" stop-opacity="0.75"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0.95"/>
+      <stop offset="0.9" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.18" stop-color="#eef1f5"/>
+      <stop offset="0.38" stop-color="#b3b9c2"/>
+      <stop offset="0.49" stop-color="#4a4f57"/>
+      <stop offset="0.53" stop-color="#1b1d21"/>
+      <stop offset="0.60" stop-color="#5d636c"/>
+      <stop offset="0.78" stop-color="#d9dee5"/>
+      <stop offset="0.90" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#8e959f"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0.35">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.42" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.55"/>
+      <stop offset="0.58" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="glowS" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowL" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="textShadow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="bevel" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="blur"/>
+      <feSpecularLighting in="blur" surfaceScale="4" specularConstant="1.1" specularExponent="28" lighting-color="#ffffff" result="spec">
+        <feDistantLight azimuth="235" elevation="48"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+      <feComposite in="SourceGraphic" in2="specIn" operator="arithmetic" k1="0" k2="1" k3="0.55" k4="0"/>
+    </filter>
+
+    <radialGradient id="starGlow">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.15" stop-color="#fff" stop-opacity="0.7"/>
+      <stop offset="0.45" stop-color="#dfe7f2" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rayH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+
+    <clipPath id="frontHalf">
+      <rect x="-600" y="0" width="1200" height="300"/>
+    </clipPath>
+  </defs>
+
+  <g id="background">
+    <rect width="1024" height="1024" fill="url(#bgGrad)"/>
+    <g mask="url(#ringMask)"><g mask="url(#sidesMask)"><rect width="1024" height="1024" fill="#fff" filter="url(#smoke)" opacity="0.7"/></g></g>
+  </g>
+
+  <circle cx="512" cy="512" r="380" fill="url(#coreGlow)"/>
+
+  <g id="beam">
+    <rect x="507" y="110" width="10" height="804" fill="url(#beamV)" filter="url(#glowL)" opacity="0.5"/>
+    <rect x="511" y="110" width="2" height="804" fill="url(#beamV)"/>
+  </g>
+
+  <g id="orbitBack" transform="translate(512 528) rotate(-9)">
+    <ellipse rx="420" ry="96" fill="none" stroke="url(#orbitGrad)" stroke-width="10" filter="url(#glowL)" opacity="0.55"/>
+    <ellipse rx="420" ry="96" fill="none" stroke="url(#orbitGrad)" stroke-width="3.2"/>
+  </g>
+
+  <g id="word">
+    <text id="tShadow" x="512" y="0" text-anchor="middle" fill="#000" opacity="0.95" filter="url(#textShadow)">ODISEA</text>
+    <text id="tGlow" x="512" y="0" text-anchor="middle" fill="#fff" opacity="0.18" filter="url(#glowL)">ODISEA</text>
+    <text id="tMain" x="512" y="0" text-anchor="middle" fill="url(#chrome)" stroke="#0c0d10" stroke-width="5" paint-order="stroke" filter="url(#bevel)">ODISEA</text>
+    <text id="tSheen" x="512" y="0" text-anchor="middle" fill="url(#sheen)">ODISEA</text>
+    <text id="tEdge" x="512" y="0" text-anchor="middle" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.1">ODISEA</text>
+  </g>
+
+  <g id="orbitFront" transform="translate(512 528) rotate(-9)" clip-path="url(#frontHalf)">
+    <ellipse rx="420" ry="96" fill="none" stroke="url(#orbitGrad)" stroke-width="10" filter="url(#glowL)" opacity="0.55"/>
+    <ellipse rx="420" ry="96" fill="none" stroke="url(#orbitGrad)" stroke-width="3.2"/>
+  </g>
+
+  <g id="stars"></g>
+</svg>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const params = new URLSearchParams(location.search);
+const transparent = params.get("bg") === "0";
+const fontFamily = params.get("font") || "CinzelDeco";
+const fontWeight = params.get("w") || "900";
+const targetWidth = +(params.get("tw") || 700);
+const baselineY = +(params.get("by") || 580);
+
+if (transparent) document.getElementById("background").remove();
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+
+function star(parent, cx, cy, len, thick, glowR, rayLen, opacity = 1) {
+  const g = el("g", { opacity }, parent);
+  if (glowR) el("circle", { cx, cy, r: glowR, fill: "url(#starGlow)" }, g);
+  if (rayLen) {
+    el("rect", { x: cx - rayLen, y: cy - 0.9, width: rayLen * 2, height: 1.8, fill: "url(#rayH)" }, g);
+  }
+  const w = thick;
+  const d = `M ${cx} ${cy - len}
+    Q ${cx + w} ${cy - w} ${cx + len * 0.62} ${cy}
+    Q ${cx + w} ${cy + w} ${cx} ${cy + len}
+    Q ${cx - w} ${cy + w} ${cx - len * 0.62} ${cy}
+    Q ${cx - w} ${cy - w} ${cx} ${cy - len} Z`;
+  el("path", { d, fill: "#fff", filter: "url(#glowS)" }, g);
+  return g;
+}
+
+document.fonts.load(`${fontWeight} 100px ${fontFamily}`).then(() => document.fonts.ready).then(() => {
+  const texts = ["tShadow", "tGlow", "tMain", "tSheen", "tEdge"].map(id => document.getElementById(id));
+  const main = texts[2];
+  const setAll = (attr, v) => texts.forEach(t => t.setAttribute(attr, v));
+  setAll("font-family", fontFamily);
+  setAll("font-weight", fontWeight);
+  setAll("letter-spacing", params.get("ls") || "4");
+  setAll("font-size", 100);
+  const w100 = main.getBBox().width;
+  const size = 100 * targetWidth / w100;
+  setAll("font-size", size.toFixed(1));
+  setAll("y", baselineY);
+  texts[0].setAttribute("y", baselineY + 10);
+
+  const stars = document.getElementById("stars");
+  star(stars, 512, 228, 64, 7, 70, 120);
+  star(stars, 512, 818, 54, 6, 60, 100);
+
+  const o = main.getExtentOfChar(0);
+  star(stars, o.x + o.width / 2, o.y + o.height * 0.56, size * 0.27, size * 0.035, size * 0.3, size * 0.55);
+
+  const a = main.getExtentOfChar(5);
+  const bb = main.getBBox();
+  star(stars, a.x + a.width * 0.5, bb.y + bb.height * 0.04, 30, 3.2, 40, 80);
+
+  // highlight where orbit meets the right edge
+  const ang = -9 * Math.PI / 180, t = -0.12;
+  const ex = 420 * Math.cos(t), ey = 96 * Math.sin(t);
+  star(stars, 512 + ex * Math.cos(ang) - ey * Math.sin(ang), 528 + ex * Math.sin(ang) + ey * Math.cos(ang), 22, 2.5, 30, 60);
+
+  const tiny = [[300, 330, 9], [742, 300, 7], [236, 640, 6], [790, 700, 8], [640, 230, 5], [380, 790, 5]];
+  tiny.forEach(([x, y, l]) => star(stars, x, y, l, 1.2, l * 1.6, 0, 0.8));
+
+  document.body.dataset.ready = "1";
+});
+</script>
+</body>
+</html>
