@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block titulo %}Administración{% endblock %}
+{% block contenido %}
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <h2>Subir archivos</h2>
+    <form method="post" action="{{ url_for('admin_subir') }}" enctype="multipart/form-data">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Archivos <input type="file" name="archivos" multiple required></label>
+      <label>Versión <input name="version" placeholder="ej. 2.4.1"></label>
+      <label>Descripción <input name="descripcion" placeholder="Qué incluye esta actualización"></label>
+      <button class="primario">Subir</button>
+    </form>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Nuevo usuario</h2>
+    <form method="post" action="{{ url_for('admin_crear_usuario') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Usuario <input name="usuario" required autocomplete="off"></label>
+      <label>Nombre <input name="nombre" placeholder="Opcional"></label>
+      <label>Contraseña <input name="clave" type="text" minlength="8" required autocomplete="off"></label>
+      <label>Membresía
+        <select name="meses">
+          {% for m in planes %}<option value="{{ m }}">{{ m }} {{ 'mes' if m == 1 else 'meses' }}</option>{% endfor %}
+        </select>
+      </label>
+      <button class="primario">Crear</button>
+    </form>
+  </section>
+</div>
+
+<section class="tarjeta">
+  <h2>Personal ({{ usuarios|length }})</h2>
+  {% if usuarios %}
+  <div class="tabla">
+  <table>
+    <thead><tr><th>Usuario</th><th>Estado</th><th>Vence</th><th>Extender</th><th>Fijar fecha</th><th>Contraseña</th><th></th></tr></thead>
+    <tbody>
+    {% for u in usuarios %}
+      {% set vence = parse_fecha(u.vence) %}
+      <tr>
+        <td><strong>{{ u.usuario }}</strong>{% if u.nombre %}<br><span class="apagado">{{ u.nombre }}</span>{% endif %}</td>
+        <td>
+          {% if not u.activo %}<span class="etiqueta error">Suspendido</span>
+          {% elif membresia_vigente(u) %}<span class="etiqueta ok">Activo</span>
+          {% else %}<span class="etiqueta aviso-amarillo">Vencido</span>{% endif %}
+        </td>
+        <td>
+          {% if vence %}{{ vence.strftime('%d/%m/%Y') }}
+            {% if vence > ahora %}<br><span class="apagado">{{ (vence - ahora).days }} días</span>{% endif %}
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_extender', uid=u.id) }}" class="fila">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <select name="meses">
+              {% for m in planes %}<option value="{{ m }}">+{{ m }} {{ 'mes' if m == 1 else 'meses' }}</option>{% endfor %}
+            </select>
+            <button>Aplicar</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_fijar_vencimiento', uid=u.id) }}" class="fila">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <input type="date" name="fecha" value="{{ vence.strftime('%Y-%m-%d') if vence else '' }}" required>
+            <button>Guardar</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_restablecer_clave', uid=u.id) }}" class="fila">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <input name="clave" type="text" minlength="8" placeholder="Nueva" required autocomplete="off">
+            <button>Cambiar</button>
+          </form>
+        </td>
+        <td class="acciones">
+          <form method="post" action="{{ url_for('admin_cambiar_estado', uid=u.id) }}">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <button>{{ 'Suspender' if u.activo else 'Activar' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('admin_eliminar_usuario', uid=u.id) }}"
+                onsubmit="return confirm('¿Eliminar este usuario?')">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <button class="peligro">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="apagado">Aún no hay usuarios.</p>
+  {% endif %}
+</section>
+
+<section class="tarjeta">
+  <h2>Archivos ({{ archivos|length }})</h2>
+  {% if archivos %}
+  <div class="tabla">
+  <table>
+    <thead><tr><th>Archivo</th><th>Versión</th><th>Descripción</th><th>Tamaño</th><th>Subido</th><th>Descargas</th><th></th></tr></thead>
+    <tbody>
+    {% for a in archivos %}
+      <tr>
+        <td>{{ a.nombre }}</td>
+        <td>{{ a.version }}</td>
+        <td>{{ a.descripcion }}</td>
+        <td>{{ tamano_legible(a.tamano) }}</td>
+        <td>{{ parse_fecha(a.subido).strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ a.descargas }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_eliminar_archivo', archivo_id=a.id) }}"
+                onsubmit="return confirm('¿Eliminar este archivo?')">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <button class="peligro">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="apagado">Todavía no subiste archivos.</p>
+  {% endif %}
+</section>
+
+<section class="tarjeta">
+  <h2>Últimas descargas</h2>
+  {% if recientes %}
+  <div class="tabla">
+  <table>
+    <thead><tr><th>Fecha</th><th>Usuario</th><th>Archivo</th></tr></thead>
+    <tbody>
+    {% for d in recientes %}
+      <tr><td>{{ parse_fecha(d.fecha).strftime('%d/%m/%Y %H:%M') }}</td><td>{{ d.usuario }}</td><td>{{ d.nombre }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="apagado">Sin descargas todavía.</p>
+  {% endif %}
+</section>
+{% endblock %}

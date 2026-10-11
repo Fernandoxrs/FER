@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Portal de actualizaciones{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+  <header class="barra">
+    <a class="marca" href="{{ url_for('inicio') }}">Portal de actualizaciones</a>
+    {% if usuario %}
+      <nav>
+        {% if usuario.es_admin %}
+          <a href="{{ url_for('admin') }}">Administración</a>
+          <a href="{{ url_for('inicio') }}">Vista del personal</a>
+        {% endif %}
+        <a href="{{ url_for('cambiar_clave') }}">Cambiar contraseña</a>
+        <form method="post" action="{{ url_for('salir') }}" class="en-linea">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <button class="enlace">Salir ({{ usuario.usuario }})</button>
+        </form>
+      </nav>
+    {% endif %}
+  </header>
+  <main>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in mensajes %}
+        <div class="aviso {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

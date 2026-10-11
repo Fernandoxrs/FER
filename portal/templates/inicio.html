@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block contenido %}
+{% set vence = parse_fecha(usuario.vence) %}
+<section class="tarjeta">
+  <h1>Hola, {{ usuario.nombre or usuario.usuario }}</h1>
+  {% if usuario.es_admin %}
+    <p class="estado ok">Cuenta de administrador: acceso sin vencimiento.</p>
+  {% elif vigente %}
+    <p class="estado ok">Membresía activa hasta el <strong>{{ vence.strftime('%d/%m/%Y') }}</strong>
+      ({{ (vence - ahora).days }} días restantes).</p>
+  {% else %}
+    <p class="estado error">Tu membresía venció{% if vence %} el {{ vence.strftime('%d/%m/%Y') }}{% endif %}.
+      Puedes ver la lista, pero no descargar. Contacta al administrador para renovarla.</p>
+  {% endif %}
+</section>
+
+<section class="tarjeta">
+  <h2>Archivos disponibles</h2>
+  {% if archivos %}
+  <div class="tabla">
+  <table>
+    <thead><tr><th>Archivo</th><th>Versión</th><th>Descripción</th><th>Tamaño</th><th>Subido</th><th></th></tr></thead>
+    <tbody>
+    {% for a in archivos %}
+      <tr>
+        <td>{{ a.nombre }}</td>
+        <td>{{ a.version }}</td>
+        <td>{{ a.descripcion }}</td>
+        <td>{{ tamano_legible(a.tamano) }}</td>
+        <td>{{ parse_fecha(a.subido).strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          {% if vigente %}
+            <a class="boton primario" href="{{ url_for('descargar', archivo_id=a.id) }}">Descargar</a>
+          {% else %}
+            <span class="apagado">Bloqueado</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="apagado">Todavía no hay archivos.</p>
+  {% endif %}
+</section>
+{% endblock %}
