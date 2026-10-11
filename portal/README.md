@@ -9,6 +9,12 @@ mientras su membresía esté vigente.
   usuarios con membresía de 1, 2, 3, 6 o 12 meses, extiende membresías, fija una
   fecha de vencimiento exacta, suspende o activa cuentas, restablece contraseñas
   y ve quién descargó qué.
+- **Registro público (opcional):** desde Administración puedes abrir el registro y
+  compartir el enlace `/registro`. Cada persona crea su cuenta (usuario, correo y
+  contraseña) y queda en *Solicitudes pendientes* hasta que tú la actives con 1, 2,
+  3, 6 o 12 meses, o la rechaces. Mientras está pendiente no puede descargar. El
+  registro viene cerrado por defecto y tiene protección contra bots y un límite de
+  5 cuentas por hora desde la misma conexión.
 - **Personal:** entra con su usuario, ve los archivos y cuántos días le quedan.
   Si la membresía venció o la cuenta está suspendida, no puede descargar.
 

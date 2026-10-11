@@ -9,5 +9,8 @@
     <label>Contraseña <input name="clave" type="password" autocomplete="current-password" required></label>
     <button class="primario">Entrar</button>
   </form>
+  {% if registro_abierto() %}
+    <p class="apagado">¿No tienes cuenta? <a href="{{ url_for('registro') }}">Regístrate</a></p>
+  {% endif %}
 </section>
 {% endblock %}

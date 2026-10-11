@@ -31,6 +31,59 @@
 </div>
 
 <section class="tarjeta">
+  <div class="cabecera">
+    <h2>Solicitudes pendientes ({{ pendientes|length }})</h2>
+    <form method="post" action="{{ url_for('admin_cambiar_registro') }}" class="fila">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      {% if registro_abierto() %}
+        <span class="etiqueta ok">Registro abierto</span>
+        <button>Cerrar registro</button>
+      {% else %}
+        <span class="etiqueta error">Registro cerrado</span>
+        <button>Abrir registro</button>
+      {% endif %}
+    </form>
+  </div>
+  {% if registro_abierto() %}
+    <p class="apagado">Enlace para compartir: <strong>{{ url_for('registro', _external=True) }}</strong></p>
+  {% endif %}
+  {% if pendientes %}
+  <div class="tabla">
+  <table>
+    <thead><tr><th>Usuario</th><th>Correo</th><th>Registrado</th><th>Activar membresía</th><th></th></tr></thead>
+    <tbody>
+    {% for u in pendientes %}
+      <tr>
+        <td><strong>{{ u.usuario }}</strong>{% if u.nombre %}<br><span class="apagado">{{ u.nombre }}</span>{% endif %}</td>
+        <td>{{ u.correo }}</td>
+        <td>{{ parse_fecha(u.creado).strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_extender', uid=u.id) }}" class="fila">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <select name="meses">
+              {% for m in planes %}<option value="{{ m }}">{{ m }} {{ 'mes' if m == 1 else 'meses' }}</option>{% endfor %}
+            </select>
+            <button class="primario">Activar</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin_eliminar_usuario', uid=u.id) }}"
+                onsubmit="return confirm('¿Rechazar y eliminar esta solicitud?')">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <button class="peligro">Rechazar</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="apagado">No hay solicitudes pendientes.</p>
+  {% endif %}
+</section>
+
+<section class="tarjeta">
   <h2>Personal ({{ usuarios|length }})</h2>
   {% if usuarios %}
   <div class="tabla">
@@ -40,7 +93,8 @@
     {% for u in usuarios %}
       {% set vence = parse_fecha(u.vence) %}
       <tr>
-        <td><strong>{{ u.usuario }}</strong>{% if u.nombre %}<br><span class="apagado">{{ u.nombre }}</span>{% endif %}</td>
+        <td><strong>{{ u.usuario }}</strong>{% if u.nombre %}<br><span class="apagado">{{ u.nombre }}</span>{% endif %}
+          {% if u.correo %}<br><span class="apagado">{{ u.correo }}</span>{% endif %}</td>
         <td>
           {% if not u.activo %}<span class="etiqueta error">Suspendido</span>
           {% elif membresia_vigente(u) %}<span class="etiqueta ok">Activo</span>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Crear cuenta{% endblock %}
+{% block contenido %}
+<section class="tarjeta estrecha">
+  <h1>Crear cuenta</h1>
+  <p class="apagado">Tu cuenta quedará pendiente hasta que el administrador active tu membresía.</p>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Usuario <input name="usuario" value="{{ datos.usuario or '' }}" minlength="3" maxlength="32"
+           pattern="[A-Za-z0-9_.\-]+" autocomplete="username" required autofocus></label>
+    <label>Nombre <input name="nombre" value="{{ datos.nombre or '' }}" maxlength="80" placeholder="Opcional"></label>
+    <label>Correo <input name="correo" type="email" value="{{ datos.correo or '' }}" maxlength="120" autocomplete="email" required></label>
+    <label>Contraseña <input name="clave" type="password" minlength="8" autocomplete="new-password" required></label>
+    <label>Repite la contraseña <input name="confirmar" type="password" minlength="8" autocomplete="new-password" required></label>
+    <div class="trampa" aria-hidden="true">
+      <label>Sitio web <input name="sitio_web" tabindex="-1" autocomplete="off"></label>
+    </div>
+    <button class="primario">Registrarme</button>
+  </form>
+  <p class="apagado">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></p>
+</section>
+{% endblock %}

@@ -88,6 +88,10 @@ th { color: var(--suave); font-weight: 600; font-size: 13px; }
 .aviso { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; }
 .aviso.ok, .estado.ok { background: var(--ok-fondo); color: var(--ok); }
 .aviso.error, .estado.error { background: var(--error-fondo); color: var(--error); }
+.estado.aviso-amarillo { background: var(--amarillo-fondo); color: var(--amarillo); }
+.trampa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.cabecera { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cabecera h2 { margin: 0; }
 .estado { padding: 10px 14px; border-radius: 8px; margin: 0; }
 .etiqueta { padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; }
 .etiqueta.ok { background: var(--ok-fondo); color: var(--ok); }

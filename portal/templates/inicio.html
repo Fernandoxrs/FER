@@ -8,6 +8,9 @@
   {% elif vigente %}
     <p class="estado ok">Membresía activa hasta el <strong>{{ vence.strftime('%d/%m/%Y') }}</strong>
       ({{ (vence - ahora).days }} días restantes).</p>
+  {% elif not vence %}
+    <p class="estado aviso-amarillo">Tu cuenta está pendiente de activación. Cuando el administrador
+      active tu membresía podrás descargar los archivos.</p>
   {% else %}
     <p class="estado error">Tu membresía venció{% if vence %} el {{ vence.strftime('%d/%m/%Y') }}{% endif %}.
       Puedes ver la lista, pero no descargar. Contacta al administrador para renovarla.</p>

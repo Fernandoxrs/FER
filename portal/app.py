@@ -10,6 +10,7 @@ Uso:
 """
 
 import calendar
+import re
 import getpass
 import os
 import secrets
@@ -51,6 +52,12 @@ MAX_LOGIN_FAILS = 5
 LOCKOUT_SECONDS = 300
 
 PLANES_MESES = [1, 2, 3, 6, 12]
+
+# Registro público: máximo de cuentas nuevas por IP y por hora.
+MAX_REGISTROS_POR_HORA = 5
+USUARIO_VALIDO = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
+CORREO_VALIDO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_registros_por_ip = {}
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -108,6 +115,10 @@ CREATE TABLE IF NOT EXISTS archivos (
     tamano        INTEGER NOT NULL,
     subido        TEXT    NOT NULL
 );
+CREATE TABLE IF NOT EXISTS ajustes (
+    clave         TEXT PRIMARY KEY,
+    valor         TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS descargas (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id    INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -135,6 +146,28 @@ def close_db(_exc):
 def init_db():
     with sqlite3.connect(DB_PATH) as db:
         db.executescript(SCHEMA)
+        columnas = {fila[1] for fila in db.execute("PRAGMA table_info(usuarios)")}
+        if "correo" not in columnas:
+            db.execute("ALTER TABLE usuarios ADD COLUMN correo TEXT NOT NULL DEFAULT ''")
+
+
+def leer_ajuste(clave, defecto=""):
+    fila = get_db().execute("SELECT valor FROM ajustes WHERE clave = ?", (clave,)).fetchone()
+    return fila["valor"] if fila else defecto
+
+
+def guardar_ajuste(clave, valor):
+    db = get_db()
+    db.execute(
+        "INSERT INTO ajustes (clave, valor) VALUES (?, ?) "
+        "ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor",
+        (clave, valor),
+    )
+    db.commit()
+
+
+def registro_abierto():
+    return leer_ajuste("registro_abierto", "0") == "1"
 
 
 def ahora():
@@ -229,6 +262,7 @@ def contexto_global():
         "membresia_vigente": membresia_vigente,
         "tamano_legible": tamano_legible,
         "planes": PLANES_MESES,
+        "registro_abierto": registro_abierto,
     }
 
 
@@ -285,6 +319,72 @@ def login():
     if usuario_actual():
         return redirect(url_for("inicio"))
     return render_template("login.html")
+
+
+def _limite_registro_superado(ip):
+    limite = time.time() - 3600
+    recientes = [t for t in _registros_por_ip.get(ip, []) if t > limite]
+    _registros_por_ip[ip] = recientes
+    return len(recientes) >= MAX_REGISTROS_POR_HORA
+
+
+@app.route("/registro", methods=["GET", "POST"])
+def registro():
+    if not registro_abierto():
+        flash("El registro está cerrado. Pide una cuenta al administrador.", "error")
+        return redirect(url_for("login"))
+    if usuario_actual():
+        return redirect(url_for("inicio"))
+    if request.method == "GET":
+        return render_template("registro.html", datos={})
+
+    datos = {
+        "usuario": request.form.get("usuario", "").strip(),
+        "nombre": request.form.get("nombre", "").strip()[:80],
+        "correo": request.form.get("correo", "").strip()[:120],
+    }
+    clave = request.form.get("clave", "")
+    ip = request.remote_addr or "?"
+
+    # Campo trampa invisible: solo lo rellenan los bots.
+    if request.form.get("sitio_web"):
+        abort(400)
+    if _limite_registro_superado(ip):
+        flash("Demasiados registros desde tu conexión. Intenta en una hora.", "error")
+        return render_template("registro.html", datos=datos), 429
+
+    error = None
+    if not USUARIO_VALIDO.match(datos["usuario"]):
+        error = "El usuario debe tener de 3 a 32 caracteres: letras, números, punto, guion o guion bajo."
+    elif not CORREO_VALIDO.match(datos["correo"]):
+        error = "Escribe un correo válido."
+    elif len(clave) < 8:
+        error = "La contraseña debe tener al menos 8 caracteres."
+    elif clave != request.form.get("confirmar", ""):
+        error = "Las contraseñas no coinciden."
+    if error:
+        flash(error, "error")
+        return render_template("registro.html", datos=datos), 400
+
+    db = get_db()
+    try:
+        cur = db.execute(
+            """INSERT INTO usuarios (usuario, nombre, correo, clave_hash, vence, creado)
+               VALUES (?, ?, ?, ?, NULL, ?)""",
+            (datos["usuario"], datos["nombre"], datos["correo"],
+             generate_password_hash(clave), ahora().isoformat()),
+        )
+        db.commit()
+    except sqlite3.IntegrityError:
+        flash("Ese usuario ya existe. Elige otro.", "error")
+        return render_template("registro.html", datos=datos), 409
+
+    _registros_por_ip.setdefault(ip, []).append(time.time())
+    session.clear()
+    session.permanent = True
+    session["uid"] = cur.lastrowid
+    flash("Cuenta creada. El administrador debe activar tu membresía para que puedas descargar.", "ok")
+    return redirect(url_for("inicio"))
 
 
 @app.route("/salir", methods=["POST"])
@@ -360,7 +460,10 @@ def descargar(archivo_id):
 def admin():
     db = get_db()
     usuarios = db.execute(
-        "SELECT * FROM usuarios WHERE es_admin = 0 ORDER BY usuario"
+        "SELECT * FROM usuarios WHERE es_admin = 0 AND vence IS NOT NULL ORDER BY usuario"
+    ).fetchall()
+    pendientes = db.execute(
+        "SELECT * FROM usuarios WHERE es_admin = 0 AND vence IS NULL ORDER BY creado"
     ).fetchall()
     archivos = db.execute(
         """SELECT a.*, COUNT(d.id) AS descargas
@@ -375,8 +478,18 @@ def admin():
            ORDER BY d.id DESC LIMIT 30"""
     ).fetchall()
     return render_template(
-        "admin.html", usuarios=usuarios, archivos=archivos, recientes=recientes
+        "admin.html", usuarios=usuarios, pendientes=pendientes,
+        archivos=archivos, recientes=recientes,
     )
+
+
+@app.route("/admin/registro", methods=["POST"])
+@admin_requerido
+def admin_cambiar_registro():
+    abrir = not registro_abierto()
+    guardar_ajuste("registro_abierto", "1" if abrir else "0")
+    flash("Registro público " + ("abierto." if abrir else "cerrado."), "ok")
+    return redirect(url_for("admin"))
 
 
 def _meses_del_form():
