@@ -1,0 +1,4 @@
+datos/
+.venv/
+__pycache__/
+*.bat

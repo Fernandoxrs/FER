@@ -22,8 +22,9 @@ de hoy si ya venció.
    crear el usuario administrador.
 3. Abre `http://localhost:8000` en el navegador.
 
-Tu personal entra con `http://IP-DE-TU-PC:8000`. Si están en otra red, necesitas
-publicar el puerto (o subirlo a un servidor/VPS) y usar HTTPS.
+Tu personal entra con `http://IP-DE-TU-PC:8000` si está en tu misma red.
+**Para personal en otros países**, sigue [DESPLIEGUE.md](DESPLIEGUE.md): servidor
+VPS con HTTPS automático (recomendado) o tu PC con Cloudflare Tunnel.
 
 ## Iniciar en Linux / Mac
 
@@ -46,6 +47,7 @@ con el mismo usuario.
 | `PORTAL_MAX_MB` | `4096` | Tamaño máximo por subida |
 | `PORTAL_DATA_DIR` | `./datos` | Dónde se guardan la base de datos y los archivos |
 | `PORTAL_HTTPS` | — | Ponlo en `1` si lo sirves detrás de HTTPS |
+| `PORTAL_PROXY` | — | Ponlo en `1` detrás de Caddy, Nginx o Cloudflare Tunnel |
 
 ## Datos y copias de seguridad
 

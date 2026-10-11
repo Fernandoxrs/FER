@@ -1,0 +1,31 @@
+# Despliegue en un servidor (VPS) con HTTPS automático.
+# Antes de iniciar, cambia DOMINIO en el archivo .env (ver DESPLIEGUE.md).
+services:
+  portal:
+    build: .
+    restart: unless-stopped
+    environment:
+      PORTAL_PROXY: "1"
+      PORTAL_HTTPS: "1"
+      TZ: ${ZONA_HORARIA:-America/Lima}
+    volumes:
+      - ./datos:/datos
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?Define DOMINIO en el archivo .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_datos:/data
+      - caddy_config:/config
+    depends_on:
+      - portal
+
+volumes:
+  caddy_datos:
+  caddy_config:

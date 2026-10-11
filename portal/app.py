@@ -33,6 +33,7 @@ from flask import (
     session,
     url_for,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -75,6 +76,10 @@ app.config.update(
     SESSION_COOKIE_SECURE=os.environ.get("PORTAL_HTTPS") == "1",
     PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
 )
+
+# Detrás de Caddy, Nginx o Cloudflare Tunnel: confiar en sus cabeceras X-Forwarded-*.
+if os.environ.get("PORTAL_PROXY") == "1":
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 
 # --------------------------------------------------------------------------
